@@ -1,6 +1,6 @@
 # ============================================
 # SISTEMA FVN para LOTOFÁCIL
-# Dados atualizados até concurso 3699
+# Com análise, previsão e conferência de resultados
 # ============================================
 
 import streamlit as st
@@ -21,7 +21,6 @@ st.set_page_config(
 ARQUIVO_DADOS = "resultados_lotofacil.json"
 
 # DADOS REAIS ATUALIZADOS (últimos 50 concursos)
-# Concurso 3699 é o mais recente
 DADOS_PADRAO = [
     [3699, [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]],
     [3698, [2,4,6,8,10,12,14,16,18,20,22,24,1,3,5]],
@@ -87,7 +86,7 @@ def salvar_resultados(resultados):
         json.dump(resultados, f)
 
 # ============================================
-# FUNÇÕES DE ANÁLISE (mesmas de antes)
+# FUNÇÕES DE ANÁLISE
 # ============================================
 
 def analisar_frequencia(resultados, ultimos_n=50):
@@ -179,8 +178,13 @@ def calcular_forca(volante, frequencia):
     maximo = sum(sorted(frequencia.values(), reverse=True)[:15])
     return round((total / maximo) * 100, 1) if maximo > 0 else 50
 
+def conferir_volante(volante, resultado):
+    """Retorna acertos e números acertados"""
+    acertos = [n for n in volante if n in resultado]
+    return len(acertos), acertos
+
 # ============================================
-# INTERFACE (continua igual)
+# INTERFACE
 # ============================================
 
 st.markdown("""
@@ -208,6 +212,22 @@ st.markdown("""
         padding: 15px;
         margin: 15px 0;
     }
+    .conferencia-acerto {
+        background: #10b981;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 15px;
+        font-size: 11px;
+        display: inline-block;
+    }
+    .conferencia-erro {
+        background: #ef4444;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 15px;
+        font-size: 11px;
+        display: inline-block;
+    }
     .numero {
         display: inline-block;
         width: 40px;
@@ -222,6 +242,8 @@ st.markdown("""
     .numero-freq { background: #10b981; color: white; }
     .numero-cluster { background: #f59e0b; color: white; }
     .numero-normal { background: #334155; color: #cbd5e1; }
+    .numero-acerto { background: #10b981; color: white; box-shadow: 0 0 0 2px white; }
+    .numero-erro { background: #ef4444; color: white; opacity: 0.5; }
     .badge {
         display: inline-block;
         background: #2a5298;
@@ -239,6 +261,16 @@ st.markdown("""
     hr {
         margin: 20px 0;
     }
+    .resumo-card {
+        background: #1e1e2e;
+        border-radius: 12px;
+        padding: 15px;
+        margin: 10px 0;
+        text-align: center;
+    }
+    .pontuacao-muito-boa { color: #10b981; font-size: 2em; font-weight: bold; }
+    .pontuacao-boa { color: #f59e0b; font-size: 2em; font-weight: bold; }
+    .pontuacao-ruim { color: #ef4444; font-size: 2em; font-weight: bold; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -251,10 +283,10 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ============================================
-# ABAS PRINCIPAIS
+# TRÊS ABAS PRINCIPAIS
 # ============================================
 
-aba1, aba2 = st.tabs(["🎯 GERAR VOLANTES", "📝 ATUALIZAR RESULTADOS"])
+aba1, aba2, aba3 = st.tabs(["🎯 GERAR VOLANTES", "🔍 CONFERIR RESULTADOS", "📝 ATUALIZAR RESULTADOS"])
 
 # ============================================
 # ABA 1 - GERAR VOLANTES
@@ -316,6 +348,7 @@ with aba1:
             volantes_temp.sort(key=lambda x: x[1], reverse=True)
             st.session_state.volantes = volantes_temp
             st.session_state.freq = freq
+            st.session_state.ultimos_volantes = volantes_temp
     
     volantes = st.session_state.volantes
     
@@ -371,10 +404,129 @@ with aba1:
         st.download_button("📥 BAIXAR VOLANTES FVN", texto, file_name=f"lotofacil_fvn_{datetime.now().strftime('%Y%m%d_%H%M')}.txt")
 
 # ============================================
-# ABA 2 - ATUALIZAR RESULTADOS
+# ABA 2 - CONFERIR RESULTADOS
 # ============================================
 
 with aba2:
+    st.markdown("### 🔍 Conferir volantes com resultado oficial")
+    
+    # Carregar últimos volantes gerados
+    if 'ultimos_volantes' in st.session_state and st.session_state.ultimos_volantes:
+        volantes_para_conferir = st.session_state.ultimos_volantes
+        st.success(f"✅ {len(volantes_para_conferir)} volantes carregados da última geração")
+    else:
+        st.warning("⚠️ Nenhum volante encontrado. Vá na aba GERAR VOLANTES primeiro.")
+        volantes_para_conferir = []
+    
+    st.markdown("---")
+    
+    # Entrada do resultado
+    st.markdown("### 📋 Digite o resultado do concurso")
+    
+    col1, col2 = st.columns([1, 2])
+    
+    with col1:
+        concurso_conferencia = st.number_input("Número do concurso", min_value=1, value=3700, step=1)
+    
+    with col2:
+        st.markdown("Selecione as 15 dezenas sorteadas:")
+    
+    dezenas_resultado = []
+    cols = st.columns(5)
+    for i in range(1, 26):
+        idx = (i - 1) % 5
+        with cols[idx]:
+            if st.checkbox(f"{i:02d}", key=f"conf_num_{i}"):
+                dezenas_resultado.append(i)
+    
+    st.caption(f"Dezenas selecionadas: {len(dezenas_resultado)} de 15")
+    
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        conferir = st.button("🔍 CONFERIR VOLANTES", use_container_width=True)
+    
+    if conferir:
+        if len(dezenas_resultado) != 15:
+            st.error(f"❌ Você selecionou {len(dezenas_resultado)} dezenas. Precisa ser exatamente 15.")
+        elif not volantes_para_conferir:
+            st.error("❌ Nenhum volante para conferir. Gere volantes primeiro.")
+        else:
+            # Realizar conferência
+            resultados_conf = []
+            for i, (vol, forca, cls) in enumerate(volantes_para_conferir, 1):
+                qtd_acertos, acertos = conferir_volante(vol, dezenas_resultado)
+                resultados_conf.append((i, vol, qtd_acertos, acertos, forca, cls))
+            
+            # Ordenar por mais acertos
+            resultados_conf.sort(key=lambda x: x[2], reverse=True)
+            
+            # Estatísticas
+            total_volantes = len(resultados_conf)
+            total_11_mais = sum(1 for r in resultados_conf if r[2] >= 11)
+            total_10_mais = sum(1 for r in resultados_conf if r[2] >= 10)
+            total_9_mais = sum(1 for r in resultados_conf if r[2] >= 9)
+            total_8_mais = sum(1 for r in resultados_conf if r[2] >= 8)
+            maior_pontuacao = max(r[2] for r in resultados_conf)
+            
+            # Resumo
+            st.markdown("---")
+            st.markdown("## 📊 RESUMO DA CONFERÊNCIA")
+            
+            col1, col2, col3, col4, col5 = st.columns(5)
+            with col1:
+                st.metric("Total Volantes", total_volantes)
+            with col2:
+                st.metric("11+ pontos", total_11_mais)
+            with col3:
+                st.metric("10+ pontos", total_10_mais)
+            with col4:
+                st.metric("9+ pontos", total_9_mais)
+            with col5:
+                st.metric("8+ pontos", total_8_mais)
+            
+            st.markdown(f"### 🏆 Melhor pontuação: **{maior_pontuacao} acertos**")
+            
+            if maior_pontuacao >= 11:
+                st.balloons()
+                st.success(f"🎉 PARABÉNS! Você teve um volante com {maior_pontuacao} acertos!")
+            
+            st.markdown("---")
+            st.markdown("## 🎯 DETALHAMENTO POR VOLANTE")
+            
+            for idx, vol, qtd, acertos, forca, cls in resultados_conf:
+                if qtd >= 11:
+                    st.markdown(f'<div class="jogo-ouro">', unsafe_allow_html=True)
+                    st.markdown(f"### 🏆 Volante FVN {idx:02d} - {qtd} ACERTOS!")
+                elif qtd >= 9:
+                    st.markdown(f"### ⭐ Volante FVN {idx:02d} - {qtd} acertos")
+                else:
+                    st.markdown(f"### Volante FVN {idx:02d} - {qtd} acertos")
+                
+                # Exibir números coloridos (verde = acertou, vermelho = errou)
+                html = "<div>"
+                for n in vol:
+                    if n in dezenas_resultado:
+                        html += f'<span class="numero numero-acerto">{n:02d}</span>'
+                    else:
+                        html += f'<span class="numero numero-erro">{n:02d}</span>'
+                html += "</div>"
+                st.markdown(html, unsafe_allow_html=True)
+                
+                if acertos:
+                    st.markdown(f"✅ **Acertos:** {' '.join(f'{n:02d}' for n in acertos)}")
+                
+                st.caption(f"📊 Força do volante: {forca}%")
+                
+                if qtd >= 11:
+                    st.markdown('</div>', unsafe_allow_html=True)
+                
+                st.markdown("<hr>", unsafe_allow_html=True)
+
+# ============================================
+# ABA 3 - ATUALIZAR RESULTADOS
+# ============================================
+
+with aba3:
     st.markdown("### 📝 Adicionar novo resultado ao sistema")
     
     resultados = carregar_resultados()
@@ -402,7 +554,7 @@ with aba2:
     for i in range(1, 26):
         idx = (i - 1) % 5
         with cols[idx]:
-            if st.checkbox(f"{i:02d}", key=f"num_{i}"):
+            if st.checkbox(f"{i:02d}", key=f"atualizar_num_{i}"):
                 dezenas_selecionadas.append(i)
     
     st.caption(f"📊 Dezenas selecionadas: {len(dezenas_selecionadas)} de 15")

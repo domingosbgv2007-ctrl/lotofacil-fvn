@@ -1,16 +1,15 @@
 # ============================================
-# LOTOFÁCIL - SISTEMA DE PREVISÃO
-# Com atualização manual de resultados
+# SISTEMA FVN para LOTOFÁCIL
+# Sistema de Previsão com Análise Estatística
 # ============================================
 
 import streamlit as st
 import random
 import json
-import os
 from datetime import datetime
 
 st.set_page_config(
-    page_title="Lotofácil - Sistema de Previsão",
+    page_title="Sistema FVN para Lotofácil",
     page_icon="🎲",
     layout="centered"
 )
@@ -77,7 +76,6 @@ DADOS_PADRAO = [
 ]
 
 def carregar_resultados():
-    """Carrega resultados do arquivo ou usa padrão"""
     try:
         with open(ARQUIVO_DADOS, 'r') as f:
             return json.load(f)
@@ -85,7 +83,6 @@ def carregar_resultados():
         return DADOS_PADRAO.copy()
 
 def salvar_resultados(resultados):
-    """Salva resultados no arquivo"""
     with open(ARQUIVO_DADOS, 'w') as f:
         json.dump(resultados, f)
 
@@ -94,7 +91,6 @@ def salvar_resultados(resultados):
 # ============================================
 
 def analisar_frequencia(resultados, ultimos_n=50):
-    """Analisa frequência das dezenas"""
     frequencia = {i: 0 for i in range(1, 26)}
     for concurso, dezenas in resultados[:ultimos_n]:
         for d in dezenas:
@@ -102,7 +98,6 @@ def analisar_frequencia(resultados, ultimos_n=50):
     return frequencia
 
 def analisar_clusters(resultados, ultimos_n=50):
-    """Identifica clusters que mais apareceram"""
     cluster_freq = {}
     for concurso, dezenas in resultados[:ultimos_n]:
         dezenas_ord = sorted(dezenas)
@@ -121,7 +116,6 @@ def analisar_clusters(resultados, ultimos_n=50):
     return dict(sorted(cluster_freq.items(), key=lambda x: x[1], reverse=True))
 
 def gerar_volante(frequencia, clusters, evitar, estrategia):
-    """Gera volante baseado na estratégia escolhida"""
     volante = set()
     
     if estrategia == "Alta Probabilidade":
@@ -166,7 +160,6 @@ def gerar_volante(frequencia, clusters, evitar, estrategia):
     return sorted(list(volante))[:15]
 
 def detectar_clusters(volante):
-    """Detecta sequências de 3+ números"""
     volante_ord = sorted(volante)
     clusters = []
     atual = [volante_ord[0]]
@@ -182,7 +175,6 @@ def detectar_clusters(volante):
     return clusters
 
 def calcular_forca(volante, frequencia):
-    """Calcula força do volante (0-100)"""
     total = sum(frequencia.get(n, 0) for n in volante)
     maximo = sum(sorted(frequencia.values(), reverse=True)[:15])
     return round((total / maximo) * 100, 1) if maximo > 0 else 50
@@ -196,7 +188,7 @@ st.markdown("""
     .header {
         text-align: center;
         padding: 20px;
-        background: #1e3c72;
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
         border-radius: 12px;
         margin-bottom: 25px;
     }
@@ -215,12 +207,6 @@ st.markdown("""
         border-radius: 12px;
         padding: 15px;
         margin: 15px 0;
-    }
-    .volante {
-        background: #1e1e2e;
-        border-radius: 10px;
-        padding: 12px;
-        margin: 8px 0;
     }
     .numero {
         display: inline-block;
@@ -244,13 +230,6 @@ st.markdown("""
         border-radius: 15px;
         font-size: 11px;
     }
-    .success {
-        background: #10b981;
-        color: white;
-        padding: 10px;
-        border-radius: 8px;
-        margin: 10px 0;
-    }
     .stButton button {
         background: #1e3c72;
         color: white;
@@ -260,18 +239,14 @@ st.markdown("""
     hr {
         margin: 20px 0;
     }
-    .tab {
-        padding: 10px;
-        cursor: pointer;
-    }
 </style>
 """, unsafe_allow_html=True)
 
-# Cabeçalho
+# Cabeçalho com o nome correto
 st.markdown("""
 <div class="header">
-    <h1>🎲 LOTOFÁCIL</h1>
-    <p>Sistema de Previsão por Análise Estatística</p>
+    <h1>🎲 SISTEMA FVN para LOTOFÁCIL</h1>
+    <p>Sistema de Previsão por Análise Estatística | Clusters e Probabilidade</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -286,23 +261,22 @@ aba1, aba2 = st.tabs(["🎯 GERAR VOLANTES", "📝 ATUALIZAR RESULTADOS"])
 # ============================================
 
 with aba1:
-    # Carregar dados atuais
     resultados = carregar_resultados()
     ultimo_concurso = resultados[0][0] if resultados else 3300
     
-    st.caption(f"📊 Base de dados: {len(resultados)} concursos | Último: {ultimo_concurso}")
+    st.caption(f"📊 Base de dados: {len(resultados)} concursos | Último concurso: {ultimo_concurso}")
     
     with st.sidebar:
-        st.markdown("### ⚙️ Configurar")
+        st.markdown("### ⚙️ CONFIGURAÇÕES FVN")
         
-        qtd_analise = st.slider("Análise (últimos concursos)", 10, min(50, len(resultados)), 25)
+        qtd_analise = st.slider("Quantidade para análise", 10, min(50, len(resultados)), 25)
         
         st.markdown("---")
         
-        estrategia = st.selectbox("Estratégia", [
+        estrategia = st.selectbox("Estratégia de previsão", [
             "Alta Probabilidade",
             "Clusters Históricos",
-            "Misto"
+            "Misto (Recomendado)"
         ])
         
         st.markdown("---")
@@ -313,23 +287,22 @@ with aba1:
         if evitar_opcao == "Apenas 01":
             numeros_evitar = [1]
         elif evitar_opcao == "Escolher":
-            numeros_evitar = st.multiselect("Selecione", list(range(1, 26)), [])
+            numeros_evitar = st.multiselect("Selecione os números para excluir", list(range(1, 26)), [])
         
         st.markdown("---")
         
-        qtd_volantes = st.slider("Quantidade", 5, 50, 30)
+        qtd_volantes = st.slider("Quantidade de volantes", 5, 50, 30)
         
         st.markdown("---")
-        st.caption("Clusters = sequências de 3+ números")
+        st.caption("🔗 Clusters = sequências de 3+ números consecutivos")
+        st.caption("📈 Sistema FVN - Foco em Variabilidade Natural")
     
-    # Botão gerar
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        gerar = st.button("🎲 GERAR VOLANTES", use_container_width=True)
+        gerar = st.button("🎲 GERAR VOLANTES FVN", use_container_width=True)
     
-    # Processar
     if 'volantes' not in st.session_state or gerar:
-        with st.spinner("Analisando dados..."):
+        with st.spinner("Analisando dados históricos..."):
             freq = analisar_frequencia(resultados, qtd_analise)
             clusters = analisar_clusters(resultados, qtd_analise)
             
@@ -346,23 +319,21 @@ with aba1:
     
     volantes = st.session_state.volantes
     
-    # Exibir
     st.markdown("---")
     
     for i, (vol, forca, cls) in enumerate(volantes, 1):
         if i == 1:
             st.markdown('<div class="jogo-ouro">', unsafe_allow_html=True)
-            st.markdown(f"### 🏆 JOGO DE OURO #{i}")
+            st.markdown(f"### 🏆 JOGO DE OURO FVN #{i}")
             st.markdown(f"<span class='badge'>Força: {forca}%</span>", unsafe_allow_html=True)
         elif i == 2:
             st.markdown('<div class="jogo-ouro">', unsafe_allow_html=True)
-            st.markdown(f"### 🥈 JOGO DE OURO #{i}")
+            st.markdown(f"### 🥈 JOGO DE OURO FVN #{i}")
             st.markdown(f"<span class='badge'>Força: {forca}%</span>", unsafe_allow_html=True)
         else:
-            st.markdown(f"### Volante {i:02d}")
+            st.markdown(f"### Volante FVN {i:02d}")
             st.markdown(f"<span class='badge'>Força: {forca}%</span>", unsafe_allow_html=True)
         
-        # Números
         html = "<div>"
         for n in vol:
             if n in [x for x,_ in sorted(st.session_state.freq.items(), key=lambda kv: kv[1], reverse=True)[:10]]:
@@ -375,43 +346,41 @@ with aba1:
         html += "</div>"
         st.markdown(html, unsafe_allow_html=True)
         
-        # Clusters
         if cls:
             txt = " | ".join([f"{c[0]}-{c[-1]} ({len(c)})" for c in cls])
-            st.caption(f"Sequências: {txt}")
+            st.caption(f"🔗 Sequências detectadas: {txt}")
         
         if i in [1, 2]:
             st.markdown('</div>', unsafe_allow_html=True)
         
         st.markdown("<hr>", unsafe_allow_html=True)
     
-    # Download
     if volantes:
-        texto = f"LOTOFÁCIL - {datetime.now().strftime('%d/%m/%Y %H:%M')}\n"
+        texto = f"SISTEMA FVN para LOTOFÁCIL - {datetime.now().strftime('%d/%m/%Y %H:%M')}\n"
         texto += f"Base: {len(resultados)} concursos | Análise: últimos {qtd_analise}\n"
         texto += f"Estratégia: {estrategia}\n"
         texto += "=" * 50 + "\n\n"
         
         for i, (vol, forca, _) in enumerate(volantes, 1):
             if i <= 2:
-                texto += f"[{i:02d}] JOGO DE OURO ({forca}%): "
+                texto += f"[{i:02d}] JOGO DE OURO FVN ({forca}%): "
             else:
                 texto += f"[{i:02d}] ({forca}%): "
             texto += " ".join(f"{n:02d}" for n in vol) + "\n"
         
-        st.download_button("📥 Baixar volantes", texto, file_name=f"lotofacil_{datetime.now().strftime('%Y%m%d_%H%M')}.txt")
+        st.download_button("📥 BAIXAR VOLANTES FVN", texto, file_name=f"lotofacil_fvn_{datetime.now().strftime('%Y%m%d_%H%M')}.txt")
 
 # ============================================
 # ABA 2 - ATUALIZAR RESULTADOS
 # ============================================
 
 with aba2:
-    st.markdown("### 📝 Adicionar novo resultado")
+    st.markdown("### 📝 Adicionar novo resultado ao sistema")
     
     resultados = carregar_resultados()
     ultimo = resultados[0][0] if resultados else 3300
     
-    st.info(f"Último concurso registrado: **{ultimo}**")
+    st.info(f"📌 Último concurso registrado no sistema: **{ultimo}**")
     
     col1, col2 = st.columns(2)
     
@@ -425,13 +394,10 @@ with aba2:
         )
     
     with col2:
-        st.markdown("### 📋 Dezenas sorteadas")
-        st.markdown("Selecione as 15 dezenas:")
+        st.markdown("### 🎯 Selecione as 15 dezenas")
     
-    # Seleção das 15 dezenas
     dezenas_selecionadas = []
     
-    # Mostrar botões organizados
     cols = st.columns(5)
     for i in range(1, 26):
         idx = (i - 1) % 5
@@ -439,43 +405,37 @@ with aba2:
             if st.checkbox(f"{i:02d}", key=f"num_{i}"):
                 dezenas_selecionadas.append(i)
     
-    st.caption(f"Selecionadas: {len(dezenas_selecionadas)} de 15")
+    st.caption(f"📊 Dezenas selecionadas: {len(dezenas_selecionadas)} de 15")
     
-    # Botão para adicionar
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        adicionar = st.button("➕ ADICIONAR RESULTADO", use_container_width=True)
+        adicionar = st.button("➕ ADICIONAR CONCURSO AO SISTEMA FVN", use_container_width=True)
     
     if adicionar:
         if len(dezenas_selecionadas) != 15:
-            st.error(f"Você selecionou {len(dezenas_selecionadas)} dezenas. Precisam ser exatamente 15.")
+            st.error(f"❌ Você selecionou {len(dezenas_selecionadas)} dezenas. O sistema FVN precisa de exatamente 15.")
         else:
             dezenas_ord = sorted(dezenas_selecionadas)
             novo_resultado = [novo_concurso, dezenas_ord]
             
-            # Adiciona no início (mais recente primeiro)
             resultados.insert(0, novo_resultado)
             
-            # Remove o mais antigo se tiver mais de 100
             if len(resultados) > 100:
                 removido = resultados.pop()
-                st.warning(f"Removido concurso {removido[0]} (limite de 100)")
+                st.warning(f"⚠️ Removido concurso {removido[0]} (limite de 100)")
             
             salvar_resultados(resultados)
             
-            st.success(f"✅ Concurso {novo_concurso} adicionado com sucesso!")
+            st.success(f"✅ Concurso {novo_concurso} adicionado com sucesso ao sistema FVN!")
             st.balloons()
             
-            # Mostrar o que foi adicionado
-            st.markdown(f"**Dezenas:** {' '.join(f'{n:02d}' for n in dezenas_ord)}")
+            st.markdown(f"**Dezenas registradas:** {' '.join(f'{n:02d}' for n in dezenas_ord)}")
             
-            # Limpar estado
             st.rerun()
     
     st.markdown("---")
     
-    # Exibir últimos resultados
-    st.markdown("### 📜 Últimos resultados registrados")
+    st.markdown("### 📜 Últimos resultados no sistema FVN")
     
     if resultados:
         mostrar = st.slider("Quantidade para exibir", 5, min(30, len(resultados)), 10)
@@ -485,17 +445,16 @@ with aba2:
             dezenas_str = " ".join(f"{n:02d}" for n in dezenas)
             st.text(f"Concurso {concurso}: {dezenas_str}")
     
-    # Botão para resetar
     st.markdown("---")
-    st.warning("⚠️ Cuidado: resetar remove todos os resultados personalizados!")
+    st.warning("⚠️ ATENÇÃO: Resetar remove todos os resultados personalizados inseridos!")
     
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        resetar = st.button("🔄 RESETAR PARA DADOS PADRÃO", use_container_width=True)
+        resetar = st.button("🔄 RESETAR PARA DADOS PADRÃO FVN", use_container_width=True)
     
     if resetar:
         salvar_resultados(DADOS_PADRAO)
-        st.success("✅ Dados resetados para o padrão!")
+        st.success("✅ Dados resetados para o padrão do sistema FVN!")
         st.rerun()
 
 # ============================================
@@ -503,4 +462,5 @@ with aba2:
 # ============================================
 
 st.markdown("---")
+st.caption("🔬 SISTEMA FVN - Foco em Variabilidade Natural | Análise de Clusters e Probabilidade Estatística")
 st.caption("⚠️ Sistema baseado em análise estatística. Não há garantia de acertos. Jogue com responsabilidade.")

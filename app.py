@@ -290,7 +290,6 @@ with aba1:
     resultados = carregar_resultados()
     ultimo_concurso = resultados[0][0] if resultados else 3699
     
-    # Informação da base de dados (agora no final da página ou em lugar discreto)
     st.markdown(f'<div class="info-base">📊 Base: {len(resultados)} concursos | Último: {ultimo_concurso}</div>', unsafe_allow_html=True)
     
     with st.sidebar:
@@ -399,7 +398,7 @@ with aba1:
         st.download_button("📥 BAIXAR VOLANTES FVN", texto, file_name=f"lotofacil_fvn_{datetime.now().strftime('%Y%m%d_%H%M')}.txt")
 
 # ============================================
-# ABA 2 - CONFERIR RESULTADOS (com layout 5x5)
+# ABA 2 - CONFERIR RESULTADOS
 # ============================================
 
 with aba2:
@@ -426,70 +425,70 @@ with aba2:
     
     dezenas_resultado = []
     
-    col1, col2, col3, col4, col5 = st.columns(5)
-    with col1:
+    c1, c2, c3, c4, c5 = st.columns(5)
+    with c1:
         if st.checkbox("01", key="conf_01"): dezenas_resultado.append(1)
-    with col2:
+    with c2:
         if st.checkbox("02", key="conf_02"): dezenas_resultado.append(2)
-    with col3:
+    with c3:
         if st.checkbox("03", key="conf_03"): dezenas_resultado.append(3)
-    with col4:
+    with c4:
         if st.checkbox("04", key="conf_04"): dezenas_resultado.append(4)
-    with col5:
+    with c5:
         if st.checkbox("05", key="conf_05"): dezenas_resultado.append(5)
     
-    col1, col2, col3, col4, col5 = st.columns(5)
-    with col1:
+    c1, c2, c3, c4, c5 = st.columns(5)
+    with c1:
         if st.checkbox("06", key="conf_06"): dezenas_resultado.append(6)
-    with col2:
+    with c2:
         if st.checkbox("07", key="conf_07"): dezenas_resultado.append(7)
-    with col3:
+    with c3:
         if st.checkbox("08", key="conf_08"): dezenas_resultado.append(8)
-    with col4:
+    with c4:
         if st.checkbox("09", key="conf_09"): dezenas_resultado.append(9)
-    with col5:
+    with c5:
         if st.checkbox("10", key="conf_10"): dezenas_resultado.append(10)
     
-    col1, col2, col3, col4, col5 = st.columns(5)
-    with col1:
+    c1, c2, c3, c4, c5 = st.columns(5)
+    with c1:
         if st.checkbox("11", key="conf_11"): dezenas_resultado.append(11)
-    with col2:
+    with c2:
         if st.checkbox("12", key="conf_12"): dezenas_resultado.append(12)
-    with col3:
+    with c3:
         if st.checkbox("13", key="conf_13"): dezenas_resultado.append(13)
-    with col4:
+    with c4:
         if st.checkbox("14", key="conf_14"): dezenas_resultado.append(14)
-    with col5:
+    with c5:
         if st.checkbox("15", key="conf_15"): dezenas_resultado.append(15)
     
-    col1, col2, col3, col4, col5 = st.columns(5)
-    with col1:
+    c1, c2, c3, c4, c5 = st.columns(5)
+    with c1:
         if st.checkbox("16", key="conf_16"): dezenas_resultado.append(16)
-    with col2:
+    with c2:
         if st.checkbox("17", key="conf_17"): dezenas_resultado.append(17)
-    with col3:
+    with c3:
         if st.checkbox("18", key="conf_18"): dezenas_resultado.append(18)
-    with col4:
+    with c4:
         if st.checkbox("19", key="conf_19"): dezenas_resultado.append(19)
-    with col5:
+    with c5:
         if st.checkbox("20", key="conf_20"): dezenas_resultado.append(20)
     
-    col1, col2, col3, col4, col5 = st.columns(5)
-    with col1:
+    c1, c2, c3, c4, c5 = st.columns(5)
+    with c1:
         if st.checkbox("21", key="conf_21"): dezenas_resultado.append(21)
-    with col2:
+    with c2:
         if st.checkbox("22", key="conf_22"): dezenas_resultado.append(22)
-    with col3:
+    with c3:
         if st.checkbox("23", key="conf_23"): dezenas_resultado.append(23)
-    with col4:
+    with c4:
         if st.checkbox("24", key="conf_24"): dezenas_resultado.append(24)
-    with col5:
+    with c5:
         if st.checkbox("25", key="conf_25"): dezenas_resultado.append(25)
     
     st.caption(f"📊 Dezenas selecionadas: {len(dezenas_resultado)} de 15")
     
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
+    bt1, bt2, bt3 = st.columns([1, 2, 1])
+    with bt2:
         conferir = st.button("🔍 CONFERIR VOLANTES", use_container_width=True)
     
     if conferir:
@@ -560,7 +559,7 @@ with aba2:
                 st.markdown("<hr>", unsafe_allow_html=True)
 
 # ============================================
-# ABA 3 - ATUALIZAR RESULTADOS (com layout 5x5)
+# ABA 3 - ATUALIZAR RESULTADOS
 # ============================================
 
 with aba3:
@@ -587,41 +586,121 @@ with aba3:
     
     dezenas_selecionadas = []
     
-    col1, col2, col3, col4, col5 = st.columns(5)
-    with col1:
+    c1, c2, c3, c4, c5 = st.columns(5)
+    with c1:
         if st.checkbox("01", key="atu_01"): dezenas_selecionadas.append(1)
-    with col2:
+    with c2:
         if st.checkbox("02", key="atu_02"): dezenas_selecionadas.append(2)
-    with col3:
+    with c3:
         if st.checkbox("03", key="atu_03"): dezenas_selecionadas.append(3)
-    with col4:
+    with c4:
         if st.checkbox("04", key="atu_04"): dezenas_selecionadas.append(4)
-    with col5:
+    with c5:
         if st.checkbox("05", key="atu_05"): dezenas_selecionadas.append(5)
     
-    col1, col2, col3, col4, col5 = st.columns(5)
-    with col1:
+    c1, c2, c3, c4, c5 = st.columns(5)
+    with c1:
         if st.checkbox("06", key="atu_06"): dezenas_selecionadas.append(6)
-    with col2:
+    with c2:
         if st.checkbox("07", key="atu_07"): dezenas_selecionadas.append(7)
-    with col3:
+    with c3:
         if st.checkbox("08", key="atu_08"): dezenas_selecionadas.append(8)
-    with col4:
+    with c4:
         if st.checkbox("09", key="atu_09"): dezenas_selecionadas.append(9)
-    with col5:
+    with c5:
         if st.checkbox("10", key="atu_10"): dezenas_selecionadas.append(10)
     
-    col1, col2, col3, col4, col5 = st.columns(5)
-    with col1:
+    c1, c2, c3, c4, c5 = st.columns(5)
+    with c1:
         if st.checkbox("11", key="atu_11"): dezenas_selecionadas.append(11)
-    with col2:
+    with c2:
         if st.checkbox("12", key="atu_12"): dezenas_selecionadas.append(12)
-    with col3:
+    with c3:
         if st.checkbox("13", key="atu_13"): dezenas_selecionadas.append(13)
-    with col4:
+    with c4:
         if st.checkbox("14", key="atu_14"): dezenas_selecionadas.append(14)
-    with col5:
+    with c5:
         if st.checkbox("15", key="atu_15"): dezenas_selecionadas.append(15)
     
-    col1, col2, col3, col4, col5 = st.columns(5)
-    with col
+    c1, c2, c3, c4, c5 = st.columns(5)
+    with c1:
+        if st.checkbox("16", key="atu_16"): dezenas_selecionadas.append(16)
+    with c2:
+        if st.checkbox("17", key="atu_17"): dezenas_selecionadas.append(17)
+    with c3:
+        if st.checkbox("18", key="atu_18"): dezenas_selecionadas.append(18)
+    with c4:
+        if st.checkbox("19", key="atu_19"): dezenas_selecionadas.append(19)
+    with c5:
+        if st.checkbox("20", key="atu_20"): dezenas_selecionadas.append(20)
+    
+    c1, c2, c3, c4, c5 = st.columns(5)
+    with c1:
+        if st.checkbox("21", key="atu_21"): dezenas_selecionadas.append(21)
+    with c2:
+        if st.checkbox("22", key="atu_22"): dezenas_selecionadas.append(22)
+    with c3:
+        if st.checkbox("23", key="atu_23"): dezenas_selecionadas.append(23)
+    with c4:
+        if st.checkbox("24", key="atu_24"): dezenas_selecionadas.append(24)
+    with c5:
+        if st.checkbox("25", key="atu_25"): dezenas_selecionadas.append(25)
+    
+    st.caption(f"📊 Dezenas selecionadas: {len(dezenas_selecionadas)} de 15")
+    
+    bt1, bt2, bt3 = st.columns([1, 2, 1])
+    with bt2:
+        adicionar = st.button("➕ ADICIONAR CONCURSO AO SISTEMA FVN", use_container_width=True)
+    
+    if adicionar:
+        if len(dezenas_selecionadas) != 15:
+            st.error(f"❌ Você selecionou {len(dezenas_selecionadas)} dezenas. O sistema FVN precisa de exatamente 15.")
+        else:
+            dezenas_ord = sorted(dezenas_selecionadas)
+            novo_resultado = [novo_concurso, dezenas_ord]
+            
+            resultados.insert(0, novo_resultado)
+            
+            if len(resultados) > 100:
+                removido = resultados.pop()
+                st.warning(f"⚠️ Removido concurso {removido[0]} (limite de 100)")
+            
+            salvar_resultados(resultados)
+            
+            st.success(f"✅ Concurso {novo_concurso} adicionado com sucesso ao sistema FVN!")
+            st.balloons()
+            
+            st.markdown(f"**Dezenas registradas:** {' '.join(f'{n:02d}' for n in dezenas_ord)}")
+            
+            st.rerun()
+    
+    st.markdown("---")
+    st.markdown("### 📜 Últimos resultados no sistema FVN")
+    
+    if resultados:
+        mostrar = st.slider("Quantidade para exibir", 5, min(30, len(resultados)), 10)
+        
+        for i in range(mostrar):
+            concurso, dezenas = resultados[i]
+            dezenas_str = " ".join(f"{n:02d}" for n in dezenas)
+            st.text(f"Concurso {concurso}: {dezenas_str}")
+    
+    st.markdown("---")
+    st.warning("⚠️ ATENÇÃO: Resetar remove todos os resultados personalizados inseridos!")
+    
+    bt1, bt2, bt3 = st.columns([1, 2, 1])
+    with bt2:
+        resetar = st.button("🔄 RESETAR PARA DADOS PADRÃO FVN", use_container_width=True)
+    
+    if resetar:
+        salvar_resultados(DADOS_PADRAO)
+        st.success("✅ Dados resetados para o padrão do sistema FVN!")
+        st.rerun()
+
+# ============================================
+# RODAPÉ
+# ============================================
+
+st.markdown("---")
+st.caption("🔬 SISTEMA FVN - Foco em Variabilidade Natural | Análise de Clusters e Probabilidade Estatística")
+st.caption("⚠️ Sistema baseado em análise estatística. Não há garantia de acertos. Jogue com responsabilidade.")

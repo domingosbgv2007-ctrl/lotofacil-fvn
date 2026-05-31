@@ -1,6 +1,6 @@
 # ============================================
 # SISTEMA FVN para LOTOFÁCIL
-# Com layout de números em grid 5x5
+# Com layout de números em grid 5x5 e logo SFVN
 # ============================================
 
 import streamlit as st
@@ -195,6 +195,20 @@ st.markdown("""
         border-radius: 12px;
         margin-bottom: 25px;
     }
+    .logo {
+        display: inline-block;
+        background: linear-gradient(135deg, #f5af19 0%, #f12711 100%);
+        color: white;
+        font-weight: bold;
+        font-size: 2em;
+        width: 80px;
+        height: 80px;
+        line-height: 80px;
+        text-align: center;
+        border-radius: 20px;
+        margin-bottom: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
     .header h1 {
         color: white;
         margin: 0;
@@ -244,13 +258,20 @@ st.markdown("""
     hr {
         margin: 20px 0;
     }
+    .info-base {
+        text-align: center;
+        font-size: 12px;
+        color: #888;
+        margin-bottom: 15px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# Cabeçalho
+# Cabeçalho com logo SFVN
 st.markdown("""
 <div class="header">
-    <h1>🎲 SISTEMA FVN para LOTOFÁCIL</h1>
+    <div class="logo">SFVN</div>
+    <h1>SISTEMA FVN para LOTOFÁCIL</h1>
     <p>Sistema de Previsão por Análise Estatística | Clusters e Probabilidade</p>
 </div>
 """, unsafe_allow_html=True)
@@ -269,7 +290,8 @@ with aba1:
     resultados = carregar_resultados()
     ultimo_concurso = resultados[0][0] if resultados else 3699
     
-    st.caption(f"📊 Base de dados: {len(resultados)} concursos | Último concurso: {ultimo_concurso}")
+    # Informação da base de dados (agora no final da página ou em lugar discreto)
+    st.markdown(f'<div class="info-base">📊 Base: {len(resultados)} concursos | Último: {ultimo_concurso}</div>', unsafe_allow_html=True)
     
     with st.sidebar:
         st.markdown("### ⚙️ CONFIGURAÇÕES FVN")
@@ -602,84 +624,4 @@ with aba3:
         if st.checkbox("15", key="atu_15"): dezenas_selecionadas.append(15)
     
     col1, col2, col3, col4, col5 = st.columns(5)
-    with col1:
-        if st.checkbox("16", key="atu_16"): dezenas_selecionadas.append(16)
-    with col2:
-        if st.checkbox("17", key="atu_17"): dezenas_selecionadas.append(17)
-    with col3:
-        if st.checkbox("18", key="atu_18"): dezenas_selecionadas.append(18)
-    with col4:
-        if st.checkbox("19", key="atu_19"): dezenas_selecionadas.append(19)
-    with col5:
-        if st.checkbox("20", key="atu_20"): dezenas_selecionadas.append(20)
-    
-    col1, col2, col3, col4, col5 = st.columns(5)
-    with col1:
-        if st.checkbox("21", key="atu_21"): dezenas_selecionadas.append(21)
-    with col2:
-        if st.checkbox("22", key="atu_22"): dezenas_selecionadas.append(22)
-    with col3:
-        if st.checkbox("23", key="atu_23"): dezenas_selecionadas.append(23)
-    with col4:
-        if st.checkbox("24", key="atu_24"): dezenas_selecionadas.append(24)
-    with col5:
-        if st.checkbox("25", key="atu_25"): dezenas_selecionadas.append(25)
-    
-    st.caption(f"📊 Dezenas selecionadas: {len(dezenas_selecionadas)} de 15")
-    
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        adicionar = st.button("➕ ADICIONAR CONCURSO AO SISTEMA FVN", use_container_width=True)
-    
-    if adicionar:
-        if len(dezenas_selecionadas) != 15:
-            st.error(f"❌ Você selecionou {len(dezenas_selecionadas)} dezenas. O sistema FVN precisa de exatamente 15.")
-        else:
-            dezenas_ord = sorted(dezenas_selecionadas)
-            novo_resultado = [novo_concurso, dezenas_ord]
-            
-            resultados.insert(0, novo_resultado)
-            
-            if len(resultados) > 100:
-                removido = resultados.pop()
-                st.warning(f"⚠️ Removido concurso {removido[0]} (limite de 100)")
-            
-            salvar_resultados(resultados)
-            
-            st.success(f"✅ Concurso {novo_concurso} adicionado com sucesso ao sistema FVN!")
-            st.balloons()
-            
-            st.markdown(f"**Dezenas registradas:** {' '.join(f'{n:02d}' for n in dezenas_ord)}")
-            
-            st.rerun()
-    
-    st.markdown("---")
-    st.markdown("### 📜 Últimos resultados no sistema FVN")
-    
-    if resultados:
-        mostrar = st.slider("Quantidade para exibir", 5, min(30, len(resultados)), 10)
-        
-        for i in range(mostrar):
-            concurso, dezenas = resultados[i]
-            dezenas_str = " ".join(f"{n:02d}" for n in dezenas)
-            st.text(f"Concurso {concurso}: {dezenas_str}")
-    
-    st.markdown("---")
-    st.warning("⚠️ ATENÇÃO: Resetar remove todos os resultados personalizados inseridos!")
-    
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        resetar = st.button("🔄 RESETAR PARA DADOS PADRÃO FVN", use_container_width=True)
-    
-    if resetar:
-        salvar_resultados(DADOS_PADRAO)
-        st.success("✅ Dados resetados para o padrão do sistema FVN!")
-        st.rerun()
-
-# ============================================
-# RODAPÉ
-# ============================================
-
-st.markdown("---")
-st.caption("🔬 SISTEMA FVN - Foco em Variabilidade Natural | Análise de Clusters e Probabilidade Estatística")
-st.caption("⚠️ Sistema baseado em análise estatística. Não há garantia de acertos. Jogue com responsabilidade.")
+    with col
